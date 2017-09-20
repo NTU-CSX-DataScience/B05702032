@@ -10,6 +10,14 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## R Markdown
+學號:b05702032
+姓名:江泓葦
+
+主題:商學院評比
+比較各大學商學研究所，包含學費、獎學金、師資、論文數量、政府補助、聲望、出路、企業愛用度等，提供不同使用者適合的資訊。
+參考資料:
+104升學地圖
+教育部統計處資料
 
 This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
