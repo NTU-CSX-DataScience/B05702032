@@ -11,23 +11,20 @@ require(ggplot2)
 qplot(x=age,data=data,geom = "histogram",main = "histogram of spendtotal",xlab="age(years-old)",binwidth=10,fill=spendtotal
 )
 
-
 #2. 教育程度與收入是否成正比 #
-canvas<-ggplot(data=data)+
-  geom_point(aes(x=edcat,y=income,color=income))+
-  geom_smooth(aes(x=edcat,y=income))+
-  labs(title="Scatter of Education-Income",x="edcat",y="income")+
-  theme_bw()
+data3<-select(data,edcat,income)
+boxplot(formula=income~edcat,data=data3,
+        xlab="edcat",
+        ylab="income",
+        color="lightblue")
+          
 
-#3.年紀和地區與養寵物的關係 #
-data <-data%>%
-  mutate(pettotal=pets_cats+pets_dogs+pets_birds+pets_small+pets_saltfish+pets_freshfish)
+#3.年紀和地區的關係 #
 
-data2<-select(data,pettotal,region,age)%>%
-  filter(pettotal>=1)
-require("lattice")
-xyplot(x=region~age,data=data2,group=pettotal,auto.key=list(space="top",columns=12,title="pettotal",cex.title=1))
+data5<-data%>%select(region,age)
+require(ggplot2)
 
 
-
+canvas<-ggplot(data=data4)
+canvas+geom_histogram(aes(x=age,fill=region))+facet_grid(.~region)+theme_bw()
 

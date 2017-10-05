@@ -1,17 +1,22 @@
 ---
-title: "hw2"
+title: "HW2"
 author: "b05702032"
 date: "2017年10月5日"
 output: html_document
 ---
 1. 年紀與花費習慣的關係
+
+年輕人消費時較為衝動，可能造成鉅額卡債，透過不同年齡層的卡費比較，可以看出資料中年輕族群是否花費較高。　
 ```{r  }
 library(dplyr)
 data <- read.csv("customer.csv", header=T, sep=",")
 mutate(data,cardspent+card2spent)
 data <-data%>%
   mutate(spendtotal = cardspent+card2spent)
+```
 
+以每400元做為花費的區間，每10歲一個區間
+```{r}
 data$spendtotal<- cut(data$spendtotal, seq(0,2000,400))
 require(ggplot2)
 qplot(x=age,data=data,geom = "histogram",main = "histogram of spendtotal",xlab="age(years-old)",binwidth=10,fill=spendtotal
@@ -19,32 +24,46 @@ qplot(x=age,data=data,geom = "histogram",main = "histogram of spendtotal",xlab="
 
 ```
 
+
+
+分析結果:
+從圖表中可以看出比較高的消費金額在50~60歲之間，20~30歲和70~80歲所花費的金額較少，可見與預測的結果不符，年輕人的消費金額沒有較其他年齡層多。
+
+
+
 2. 教育程度與收入是否成正比
+
+通常教育程度高，薪資也相對較高，透過圖表，可以以看出是否資料與此情況相符。
 ```{r }
-canvas<-ggplot(data=data)+
-  geom_point(aes(x=edcat,y=income,color=income))+
-  geom_smooth(aes(x=edcat,y=income))+
-  labs(title="Scatter of Education-Income",x="edcat",y="income")+
-  theme_bw()
+  data3<-select(data,edcat,income)
+boxplot(formula=income~edcat,data=data3,
+        xlab="edcat",
+        ylab="income",
+        color="lightblue")
+          
 ```
 
+
+
+分析結果:
+以盒狀圖來看，教育程度為5的整體收入分布較高，而教育程度為1的整體收入較低，除了教育程度為2的收入表現較突出，其餘的大致上隨著教育程度升高，有更高的收入。
+
+
+
+3.年紀和地區的關係
+
+每個地區年齡分布不同，想藉由圖表看出是否有高齡化問題及各地區年齡層分布。
 ```{r}
-data3<-select(data,edcat,income)%>%
-  filter(income>=mean(income))%>%
-  group_by(edcat)
-plot(data3$income,data3$edcat)
+data4<-data%>%select(region,age)
+data4$region<-as.factor(data4$region)
+require(ggplot2)
+
+
+canvas<-ggplot(data=data4)
+canvas+geom_histogram(aes(x=age,fill=region))+facet_grid(.~region)+theme_bw()
 ```
 
 
-3.年紀和地區與養寵物的關係
-```{r}
-data <-data%>%
-  mutate(pettotal=pets_cats+pets_dogs+pets_birds+pets_small+pets_saltfish+pets_freshfish)
 
-data2<-select(data,pettotal,region,age)%>%
-  filter(pettotal>=1)
-require("lattice")
-xyplot(x=region~age,data=data2,group=pettotal,auto.key=list(space="top",columns=12,title="pettotal",cex.title=1))
-
-```
-
+分析結果:
+除了3號地區，各地區高齡化的現象都不明顯，而又以5號地區的人口分佈最為年輕，有好的生產力助於產業發展，1、2、4號地區在未來可能也會有高齡化的現象產生。
