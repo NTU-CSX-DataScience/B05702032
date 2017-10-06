@@ -1,38 +1,26 @@
 ---
 title: "HW1"
 author: "b05702032"
-date: "2017年9月20日"
+date: "2017年10月6日"
 output: html_document
 ---
+報告主題:台大會計系與其他會計系比較
+各校會計系學習東西大同小異，未來的出路與發展有相同也有相異之處，想藉由資料比較台大、政大、東吳、北大、輔大五間學校會計系的優勢，照分數、新聞報導、企業界的名聲、校友優勢、師資陣容、未來薪資、深造學習，國際化程度等等來作排名。
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+研究方法:
+學術互評	     20%  衡量學者意見和具公信力之評價
+未來發展       10%  衡量薪資水平和深造機會
+跨領域專業     10%  衡量是否有跨領域的專業能力
+師生比	       10%  衡量教學素質
+教職員引文量	 20%  衡量研究實力
+僱主評價	     10%  僱主對院校畢業生之意見
+國際生比例	   10%  衡量學生的多元化程度
+國際教職員比例 10%  衡量教師的多元化程度
 
-## R Markdown
-學號:b05702032
-姓名:江泓葦
 
-主題:商學院評比
-比較各大學商學研究所，包含學費、獎學金、師資、論文數量、政府補助、聲望、出路、企業愛用度等，提供不同使用者適合的資訊。
-參考資料:
-104升學地圖
-教育部統計處資料
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+資料來源:
+104升學就業地圖
+遠見雜誌-2017台灣最佳大學排行榜
+2016雇主最滿意大學調查 - 1111人力銀行
+QS2016世界大學會計&金融學科排名
+台大會計系、政大會計系、東吳會計系、北大會計系、輔大會計系
