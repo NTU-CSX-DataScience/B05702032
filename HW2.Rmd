@@ -1,6 +1,6 @@
 ---
 title: "HW2"
-author: "b05702032"
+author: "會計二 b05702032 江泓葦"
 date: "2017年10月5日"
 output: html_document
 ---
