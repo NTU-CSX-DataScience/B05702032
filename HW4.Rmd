@@ -1,0 +1,62 @@
+---
+title: "HW4"
+author: "b05702032"
+date: "2017年11月29日"
+output: html_document
+---
+以葡萄酒資料做酒精與果酸的相關性分析
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+wine<-read.table("C:/Users/Daniel Chiang/Desktop/1125HW4/wine.csv",header = TRUE,sep = ",")
+head(wine)
+
+```
+
+
+資料的第一行為栽培品種(Cultivar)，因和組別相似，先將它從分析中排除，設定seed，使結果可以被重新產生
+
+
+```{r}
+wineexam<-wine[,which(names(wine)!="Cultivar")]
+set.seed(278613)
+wineK3<-kmeans(x=wineexam,centers = 3)
+require(useful)
+plot(wineK3,data = wine,class = "Cultivar")
+```
+
+
+初步分群的結果，若顏色和形狀的相關性高，表示分群做得很好
+
+使用useful套件中的FitKMeans找出最適合的分群數
+
+
+```{r}
+wineBest<-FitKMeans(wineexam,max.clusters = 20,nstart = 25,seed = 278613 )
+PlotHartigan(wineBest)
+```
+
+
+由此推知，最適的分群數為13群，再以13群進行分配
+
+
+
+```{r}
+
+set.seed(278613)
+wineK13<-kmeans(x=wineexam,centers = 13)
+require(useful)
+plot(wineK13,data = wine,class = "Cultivar")
+```
+
+
+可看出13群的結果較原始的結果好，然後進行繪圖
+
+
+```{r}
+winecenter<-as.data.frame(wineK13$centers)
+ggplot(winecenter,aes(x=Alcohol,y=Malic.acid))+geom_point()
+```
+
+
+由散布圖可看出酒精(Alcohol)與果酸( Malic.acid )並無明顯關係
