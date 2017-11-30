@@ -1,0 +1,158 @@
+---
+title: "HW3"
+author: "b05702032"
+date: "2017年11月25日"
+output: html_document
+---
+
+匯入套件
+
+
+```{r}
+library(httr)
+library(rjson)
+library(jiebaRD)
+library(jiebaR)
+library(tidyverse)
+library(stringr)
+library(RColorBrewer)
+library(wordcloud)
+options(stringsAsFactors = F)
+
+```
+
+
+從facebook撈取資料十九大習近平對黨的報告
+
+
+```{r}
+token <-"EAACEdEose0cBAJawnsZAxCYbXZCZBJPQIcZB1jxwhFZBGyRTpTUqHGfQGhYMuxkeafMxVmuvx3arsgQLav1SfofuH0tITwx954mU8ytx1Q8X0nu1r9jd4JbPeZAFMhqxo1MWxZCkwwa7deZBPdf6tLPIun4O9bceI2LTf97TLWfmIQ827Fyy6SKUpz09C9mnO2lC5HBzfqGotwZDZD"
+query="message"
+
+id <- "243993392310512_1563534403689731"
+url1 <- sprintf("https://graph.facebook.com/v2.10/%s?fields=%s&access_token=%s",id, query, token)
+page1 <- as.data.frame(fromJSON(content(GET(url1),'text')))
+
+id <- "243993392310512_1563534820356356"
+url2 <- sprintf("https://graph.facebook.com/v2.10/%s?fields=%s&access_token=%s",id, query, token)
+page2 <- as.data.frame(fromJSON(content(GET(url2),'text')))
+
+id <- "243993392310512_1563535517022953"
+url3 <- sprintf("https://graph.facebook.com/v2.10/%s?fields=%s&access_token=%s",id, query, token)
+page3 <- as.data.frame(fromJSON(content(GET(url3),'text')))
+
+id <- "243993392310512_1563536387022866"
+url4 <- sprintf("https://graph.facebook.com/v2.10/%s?fields=%s&access_token=%s",id, query, token)
+page4 <- as.data.frame(fromJSON(content(GET(url4),'text')))
+
+id <- "243993392310512_1563537567022748"
+url5 <- sprintf("https://graph.facebook.com/v2.10/%s?fields=%s&access_token=%s",id, query, token)
+page5 <- as.data.frame(fromJSON(content(GET(url5),'text')))
+
+```
+
+
+進行斷字斷句
+
+
+```{r}
+cutter <- worker()
+a1<-as.character(page1$message)
+cut1 <- cutter[a1]
+word1 <- as.data.frame(table(cut1))
+
+a2<-as.character(page2$message)
+cut2 <- cutter[a2]
+word2 <- as.data.frame(table(cut2))
+
+a3<-as.character(page3$message)
+cut3 <- cutter[a3]
+word3 <- as.data.frame(table(cut3))
+
+a4<-as.character(page4$message)
+cut4 <- cutter[a4]
+word4<- as.data.frame(table(cut4))
+
+a5<-as.character(page5$message)
+cut5 <- cutter[a5]
+word5 <- as.data.frame(table(cut5))
+```
+
+
+刪除無意義用詞，如亂碼、數字、長度為1的用字
+
+
+```{r}
+word1 <-word1%>%
+  filter(!str_detect(cut1, "[a-zA-Z0-9]+")) %>%
+  filter(!(cut1 %in% c('必須','各位','因為','所有','加快'))) %>%
+  filter(nchar(as.character(cut1)) >= 2) %>%
+  arrange(desc(Freq))
+word2 <-word2%>%
+  filter(!str_detect(cut2, "[a-zA-Z0-9]+")) %>%
+  filter(!(cut2 %in% c('必須','各位','因為','所有','加快'))) %>%
+  filter(nchar(as.character(cut2)) >= 2) %>%
+  arrange(desc(Freq))
+word3 <-word3%>%
+  filter(!str_detect(cut3, "[a-zA-Z0-9]+")) %>%
+  filter(!(cut3 %in% c('必須','各位','因為','所有','加快'))) %>%
+  filter(nchar(as.character(cut3)) >= 2) %>%
+  arrange(desc(Freq))
+word4 <-word4%>%
+  filter(!str_detect(cut4, "[a-zA-Z0-9]+")) %>%
+  filter(!(cut4 %in% c('必須','各位','因為','所有','加快'))) %>%
+  filter(nchar(as.character(cut4)) >= 2) %>%
+  arrange(desc(Freq))
+word5 <-word5%>%
+  filter(!str_detect(cut5, "[a-zA-Z0-9]+")) %>%
+  filter(!(cut5 %in% c('必須','各位','因為','所有','加快'))) %>%
+  filter(nchar(as.character(cut5)) >= 2) %>%
+  arrange(desc(Freq))
+```
+
+
+製作文字雲
+
+
+```{r}
+wordcloud(words = word1$cut[1:50],
+          freq = word1$Freq, 
+          min.freq = 5,
+          random.order = F)
+          
+```
+
+```{r}
+wordcloud(words = word2$cut[1:50],
+          freq = word2$Freq, 
+          min.freq = 5,
+          random.order = F)
+
+```
+
+```{r}
+wordcloud(words = word3$cut[1:50],
+          freq = word3$Freq, 
+          min.freq = 5,
+          random.order = F)
+
+```
+
+```{r}
+wordcloud(words = word4$cut[1:50],
+          freq = word4$Freq, 
+          min.freq = 3,
+          random.order = F)
+
+```
+
+```{r}
+wordcloud(words = word5$cut[1:50],
+          freq = word5$Freq, 
+          min.freq = 5,
+          random.order = F)
+```
+
+
+從五段話的文字雲可看出習近平不斷提到中國特色、社會主義、實現、經濟、發展、建設、改革等，而也見到幾個與以往不同的詞，如:夢想、生態等，但整體可看出習近平的雄心，要把中國的實力展現在世界舞台，習近平也提出中國夢，希望凝聚中國各民族把中國推向更好的未來。
+
