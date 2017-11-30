@@ -1,11 +1,11 @@
 ---
 title: "HW3"
 author: "b05702032"
-date: "2017�~11��25��"
+date: "2017年11月25日"
 output: html_document
 ---
 
-�פJ�M��
+匯入套件
 
 
 ```{r}
@@ -22,7 +22,7 @@ options(stringsAsFactors = F)
 ```
 
 
-�qfacebook������ƤQ�E�j�ߪ񥭹��Ҫ����i
+從facebook撈取資料十九大習近平對黨的報告
 
 
 ```{r}
@@ -52,7 +52,7 @@ page5 <- as.data.frame(fromJSON(content(GET(url5),'text')))
 ```
 
 
-�i���_�r�_�y
+進行斷字斷句
 
 
 ```{r}
@@ -79,39 +79,39 @@ word5 <- as.data.frame(table(cut5))
 ```
 
 
-�R���L�N�q�ε��A�p�ýX�B�Ʀr�B���׬�1���Φr
+刪除無意義用詞，如亂碼、數字、長度為1的用字
 
 
 ```{r}
 word1 <-word1%>%
   filter(!str_detect(cut1, "[a-zA-Z0-9]+")) %>%
-  filter(!(cut1 %in% c('����','�U��','�]��','�Ҧ�','�[��'))) %>%
+  filter(!(cut1 %in% c('必須','各位','因為','所有','加快'))) %>%
   filter(nchar(as.character(cut1)) >= 2) %>%
   arrange(desc(Freq))
 word2 <-word2%>%
   filter(!str_detect(cut2, "[a-zA-Z0-9]+")) %>%
-  filter(!(cut2 %in% c('����','�U��','�]��','�Ҧ�','�[��'))) %>%
+  filter(!(cut2 %in% c('必須','各位','因為','所有','加快'))) %>%
   filter(nchar(as.character(cut2)) >= 2) %>%
   arrange(desc(Freq))
 word3 <-word3%>%
   filter(!str_detect(cut3, "[a-zA-Z0-9]+")) %>%
-  filter(!(cut3 %in% c('����','�U��','�]��','�Ҧ�','�[��'))) %>%
+  filter(!(cut3 %in% c('必須','各位','因為','所有','加快'))) %>%
   filter(nchar(as.character(cut3)) >= 2) %>%
   arrange(desc(Freq))
 word4 <-word4%>%
   filter(!str_detect(cut4, "[a-zA-Z0-9]+")) %>%
-  filter(!(cut4 %in% c('����','�U��','�]��','�Ҧ�','�[��'))) %>%
+  filter(!(cut4 %in% c('必須','各位','因為','所有','加快'))) %>%
   filter(nchar(as.character(cut4)) >= 2) %>%
   arrange(desc(Freq))
 word5 <-word5%>%
   filter(!str_detect(cut5, "[a-zA-Z0-9]+")) %>%
-  filter(!(cut5 %in% c('����','�U��','�]��','�Ҧ�','�[��'))) %>%
+  filter(!(cut5 %in% c('必須','各位','因為','所有','加快'))) %>%
   filter(nchar(as.character(cut5)) >= 2) %>%
   arrange(desc(Freq))
 ```
 
 
-�s�@��r��
+製作文字雲
 
 
 ```{r}
@@ -154,5 +154,5 @@ wordcloud(words = word5$cut[1:50],
 ```
 
 
-�q���q�ܪ���r���i�ݥX�ߪ񥭤��_���줤��S��B���|�D�q�B��{�B�g�١B�o�i�B�س]�B�ﭲ���A�Ӥ]����X�ӻP�H�����P�����A�p:�ڷQ�B�ͺA���A������i�ݥX�ߪ񥭪����ߡA�n�⤤�ꪺ��O�i�{�b�@�ɻR�x�A�ߪ񥭤]���X����ڡA�Ʊ澮�E����U���ڧ⤤����V��n�����ӡC
+從五段話的文字雲可看出習近平不斷提到中國特色、社會主義、實現、經濟、發展、建設、改革等，而也見到幾個與以往不同的詞，如:夢想、生態等，但整體可看出習近平的雄心，要把中國的實力展現在世界舞台，習近平也提出中國夢，希望凝聚中國各民族把中國推向更好的未來。
 
