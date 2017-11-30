@@ -1,137 +1,158 @@
 ---
 title: "HW3"
 author: "b05702032"
-date: "2017å¹´11æœˆ2æ—¥"
+date: "2017¦~11¤ë25¤é"
 output: html_document
 ---
-åˆ†ææŸ¯æ–‡å“²ç²‰å°ˆ07/01-10/31çš„è²¼æ–‡å…§å®¹åŠç•™è¨€
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+
+¶×¤J®M¥ó
+
+
+```{r}
 library(httr)
 library(rjson)
-library(plyr)
-
-id <- "136845026417486"
-query <-"posts.limit(50){id,message,type,created_time,updated_time,shares,comments.limit(0).summary(true),likes.limit(0).summary(true)}&since=2017-07-01&until=2017-10-31"
-token <- "EAACEdEose0cBAGLCbz9WCadyUVZCZCKQVMiQvJaZBLrMwpJLYFwxqZCEuSXanCYvREBmsZCQ0ZB33SIXTeQQHdjrcOfNIrIOEn3gQG3q93Gaid3ViJZByALobjCmUTymHRIg9c0rynex9D7w8NwbjlclZCjewR8ZCeOoLCDe6byjv3lv9q6bFIMT5evXR5IAncdhpJYTZB4CMTZCwZDZD"
-url <- sprintf("https://graph.facebook.com/v2.10/%s?fields=%s&access_token=%s",id,query,token)
-
-res <- fromJSON(content(GET(url),'text'))
-
-parsePost <- function(x){
-  data.frame(created_time = x$created_time,
-             id = x$id,
-             updated_time = x$updated_time,
-             type = if(!is.null(x$type)) x$type else NA,
-             message = if(!is.null(x$message)) x$message else NA,
-             shares_count = if(!is.null(x$shares)) x$shares$count else NA,
-             likes_count = if(!is.null(x$likes)) x$likes$summary$total_count else NA,
-             comments_count = if(!is.null(x$comments)) x$comments$summary$total_count else NA
-  )
-}
-
-tiwfb.df <- do.call("rbind.fill", lapply(res$posts$data, parsePost))
-nexturl <- res$posts$paging$"next"
-
-while(T){
-  nextres <- fromJSON(content(GET(nexturl),'text'))
-  nex.df <- do.call("rbind.fill", lapply(nextres$data, parsePost))
-  tiwfb.df <- rbind.fill(tiwfb.df, nex.df)
-  print(nrow(tiwfb.df))
-  nexturl <- nextres$paging$"next"
-  if(is.null(nexturl)){break}
-} 
-
-id <- "136845026417486"
-query <- "comments.limit(200)"
-token <- "EAACEdEose0cBAGLCbz9WCadyUVZCZCKQVMiQvJaZBLrMwpJLYFwxqZCEuSXanCYvREBmsZCQ0ZB33SIXTeQQHdjrcOfNIrIOEn3gQG3q93Gaid3ViJZByALobjCmUTymHRIg9c0rynex9D7w8NwbjlclZCjewR8ZCeOoLCDe6byjv3lv9q6bFIMT5evXR5IAncdhpJYTZB4CMTZCwZDZD"
-url <- sprintf("https://graph.facebook.com/v2.10/%s?fields=%s&access_token=%s",id, query, token)
-url
-
-res_ry <- fromJSON(content(GET(url),'text'))
-parsePost <- function(x){
-  data.frame(id = x$id,
-             created_time =  x$created_time,
-             message = if(!is.null(x$message)) x$message else NA
-  )
-}
-
-
-tiwfb_post <- tiwfb.df[4,]
-tiwfb_ry.df <- data.frame()
-for( i in 1:nrow(tiwfb_post)){
-  url <- sprintf("https://graph.facebook.com/v2.8/%s?fields=%s&access_token=%s",tiwfb_post$id[i], query, token)
-  res_ry <- fromJSON(content(GET(url),'text'))
-  nexturl <- res_ry$comments$paging$"next"
-  post_nex.df <- do.call("rbind.fill", lapply(res_ry$comments$data, parsePost))
-  tiwfb_ry.df <- rbind(tiwfb_ry.df,post_nex.df) 
-  if (is.null(res_ry$comments$paging$"next")){
-    print(tiwfb_post$id[i])
-    print(i)
-    next
-  }
-  while(T){
-    nextres <-fromJSON(content(GET(nexturl),'text'))
-    post_nex.df <- do.call("rbind.fill", lapply(nextres$data, parsePost))
-    tiwfb_ry.df <- rbind(tiwfb_ry.df,post_nex.df)
-    print(tiwfb_post$id[i])
-    print(nrow(tiwfb_ry.df))
-    nexturl <- nextres$paging$"next"
-    if(is.null(nexturl)){
-      break}
-  }
-}
-
-
-write.csv(tiwfb_ry.df, file = "tiwfb_ry.csv", row.names = FALSE,fileEncoding = "big-5")
-
-```
-
-
-è£½ä½œæ–‡å­—é›²
-```{}
-library(NLP)
-library(tm)
 library(jiebaRD)
 library(jiebaR)
+library(tidyverse)
+library(stringr)
 library(RColorBrewer)
 library(wordcloud)
-filesname <- list.files(getwd(), pattern="*.csv")
-files <- lapply(filesname, readLines)
-docs <- Corpus(VectorSource(files))
-toSpace <- content_transformer(function(x, pattern) {
-  return (gsub(pattern, " ", x))
-}
+options(stringsAsFactors = F)
 
-docs <- tm_map(docs, toSpace, "â€»")
-docs <- tm_map(docs, toSpace, "â—†")
-docs <- tm_map(docs, toSpace, "â€§")
-docs <- tm_map(docs, toSpace, "çš„")
-docs <- tm_map(docs, toSpace, "æˆ‘")
-docs <- tm_map(docs, toSpace, "æ˜¯")
-docs <- tm_map(docs, toSpace, "[a-zA-Z]")
-docs <- tm_map(docs, removePunctuation)
-docs <- tm_map(docs, removeNumbers)
-docs <- tm_map(docs, stripWhitespace)
-
-
-
-mixseg = worker()
-jieba_tokenizer=function(d){
-  unlist(segment(d[[1]],mixseg))
-}
-seg = lapply(docs, jieba_tokenizer)
-freqFrame = as.data.frame(table(unlist(seg)))
-freqFrame = freqFrame[order(freqFrame$Freq,decreasing=TRUE), ]
-library(knitr)
-kable(head(freqFrame), format = "markdown")
-
-
-wordcloud(freqFrame$Var1,freqFrame$Freq,
-          scale=c(5,0.1),min.freq=15,max.words=1500,
-          random.order=TRUE, random.color=FALSE, 
-          rot.per=.1, colors=brewer.pal(8, "Dark2"),
-          ordered.colors=FALSE,use.r.layout=FALSE,
-          fixed.asp=TRUE)
 ```
+
+
+±qfacebook¼´¨ú¸ê®Æ¤Q¤E¤j²ßªñ¥­¹ïÄÒªº³ø§i
+
+
+```{r}
+token <-"EAACEdEose0cBAJawnsZAxCYbXZCZBJPQIcZB1jxwhFZBGyRTpTUqHGfQGhYMuxkeafMxVmuvx3arsgQLav1SfofuH0tITwx954mU8ytx1Q8X0nu1r9jd4JbPeZAFMhqxo1MWxZCkwwa7deZBPdf6tLPIun4O9bceI2LTf97TLWfmIQ827Fyy6SKUpz09C9mnO2lC5HBzfqGotwZDZD"
+query="message"
+
+id <- "243993392310512_1563534403689731"
+url1 <- sprintf("https://graph.facebook.com/v2.10/%s?fields=%s&access_token=%s",id, query, token)
+page1 <- as.data.frame(fromJSON(content(GET(url1),'text')))
+
+id <- "243993392310512_1563534820356356"
+url2 <- sprintf("https://graph.facebook.com/v2.10/%s?fields=%s&access_token=%s",id, query, token)
+page2 <- as.data.frame(fromJSON(content(GET(url2),'text')))
+
+id <- "243993392310512_1563535517022953"
+url3 <- sprintf("https://graph.facebook.com/v2.10/%s?fields=%s&access_token=%s",id, query, token)
+page3 <- as.data.frame(fromJSON(content(GET(url3),'text')))
+
+id <- "243993392310512_1563536387022866"
+url4 <- sprintf("https://graph.facebook.com/v2.10/%s?fields=%s&access_token=%s",id, query, token)
+page4 <- as.data.frame(fromJSON(content(GET(url4),'text')))
+
+id <- "243993392310512_1563537567022748"
+url5 <- sprintf("https://graph.facebook.com/v2.10/%s?fields=%s&access_token=%s",id, query, token)
+page5 <- as.data.frame(fromJSON(content(GET(url5),'text')))
+
+```
+
+
+¶i¦æÂ_¦rÂ_¥y
+
+
+```{r}
+cutter <- worker()
+a1<-as.character(page1$message)
+cut1 <- cutter[a1]
+word1 <- as.data.frame(table(cut1))
+
+a2<-as.character(page2$message)
+cut2 <- cutter[a2]
+word2 <- as.data.frame(table(cut2))
+
+a3<-as.character(page3$message)
+cut3 <- cutter[a3]
+word3 <- as.data.frame(table(cut3))
+
+a4<-as.character(page4$message)
+cut4 <- cutter[a4]
+word4<- as.data.frame(table(cut4))
+
+a5<-as.character(page5$message)
+cut5 <- cutter[a5]
+word5 <- as.data.frame(table(cut5))
+```
+
+
+§R°£µL·N¸q¥Îµü¡A¦p¶Ã½X¡B¼Æ¦r¡Bªø«×¬°1ªº¥Î¦r
+
+
+```{r}
+word1 <-word1%>%
+  filter(!str_detect(cut1, "[a-zA-Z0-9]+")) %>%
+  filter(!(cut1 %in% c('¥²¶·','¦U¦ì','¦]¬°','©Ò¦³','¥[§Ö'))) %>%
+  filter(nchar(as.character(cut1)) >= 2) %>%
+  arrange(desc(Freq))
+word2 <-word2%>%
+  filter(!str_detect(cut2, "[a-zA-Z0-9]+")) %>%
+  filter(!(cut2 %in% c('¥²¶·','¦U¦ì','¦]¬°','©Ò¦³','¥[§Ö'))) %>%
+  filter(nchar(as.character(cut2)) >= 2) %>%
+  arrange(desc(Freq))
+word3 <-word3%>%
+  filter(!str_detect(cut3, "[a-zA-Z0-9]+")) %>%
+  filter(!(cut3 %in% c('¥²¶·','¦U¦ì','¦]¬°','©Ò¦³','¥[§Ö'))) %>%
+  filter(nchar(as.character(cut3)) >= 2) %>%
+  arrange(desc(Freq))
+word4 <-word4%>%
+  filter(!str_detect(cut4, "[a-zA-Z0-9]+")) %>%
+  filter(!(cut4 %in% c('¥²¶·','¦U¦ì','¦]¬°','©Ò¦³','¥[§Ö'))) %>%
+  filter(nchar(as.character(cut4)) >= 2) %>%
+  arrange(desc(Freq))
+word5 <-word5%>%
+  filter(!str_detect(cut5, "[a-zA-Z0-9]+")) %>%
+  filter(!(cut5 %in% c('¥²¶·','¦U¦ì','¦]¬°','©Ò¦³','¥[§Ö'))) %>%
+  filter(nchar(as.character(cut5)) >= 2) %>%
+  arrange(desc(Freq))
+```
+
+
+»s§@¤å¦r¶³
+
+
+```{r}
+wordcloud(words = word1$cut[1:50],
+          freq = word1$Freq, 
+          min.freq = 5,
+          random.order = F)
+          
+```
+
+```{r}
+wordcloud(words = word2$cut[1:50],
+          freq = word2$Freq, 
+          min.freq = 5,
+          random.order = F)
+
+```
+
+```{r}
+wordcloud(words = word3$cut[1:50],
+          freq = word3$Freq, 
+          min.freq = 5,
+          random.order = F)
+
+```
+
+```{r}
+wordcloud(words = word4$cut[1:50],
+          freq = word4$Freq, 
+          min.freq = 3,
+          random.order = F)
+
+```
+
+```{r}
+wordcloud(words = word5$cut[1:50],
+          freq = word5$Freq, 
+          min.freq = 5,
+          random.order = F)
+```
+
+
+±q¤­¬q¸Üªº¤å¦r¶³¥i¬İ¥X²ßªñ¥­¤£Â_´£¨ì¤¤°ê¯S¦â¡BªÀ·|¥D¸q¡B¹ê²{¡B¸gÀÙ¡Bµo®i¡B«Ø³]¡B§ï­²µ¥¡A¦Ó¤]¨£¨ì´X­Ó»P¥H©¹¤£¦Pªºµü¡A¦p:¹Ú·Q¡B¥ÍºAµ¥¡A¦ı¾ãÅé¥i¬İ¥X²ßªñ¥­ªº¶¯¤ß¡A­n§â¤¤°êªº¹ê¤O®i²{¦b¥@¬É»R¥x¡A²ßªñ¥­¤]´£¥X¤¤°ê¹Ú¡A§Æ±æ¾®»E¤¤°ê¦U¥Á±Ú§â¤¤°ê±À¦V§ó¦nªº¥¼¨Ó¡C
 
