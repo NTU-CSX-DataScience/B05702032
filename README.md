@@ -3,7 +3,7 @@
 
 ##作業二:https://ntu-csx-datascience.github.io/b05702032/HW2.html
 
-##作業三:
+##作業三:https://ntu-csx-datascience.github.io/b05702032/HW3.html
 
 ##作業四:https://ntu-csx-datascience.github.io/b05702032/HW4.html
 
