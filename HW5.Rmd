@@ -1,0 +1,85 @@
+---
+title: "HW5"
+author: "b05702032"
+output: html_document
+---
+匯入套件
+```{r setup, include=FALSE}
+library(readr)
+library(ggplot2)
+library(plyr)
+```
+
+
+匯入資料
+資料為主計處薪資及生產力統計資料，這裡只以服務業來進行分析
+
+
+```{r}
+service <- read_csv("C:/Users/Daniel Chiang/Desktop/HW5/service.csv")
+```
+
+進行相關性分析
+
+```{r}
+require(reshape2)
+require(scales)
+serCor<-cor(service[,c(3,9:11)])
+serMelt<-melt(serCor,varnames = c("x","y"),value.name = "Correlation")
+serMelt<-serMelt[order(serMelt$Correlation),]
+ggplot(serMelt,aes(x=x,y=y))+
+  geom_tile(aes(fill=Correlation))+
+  scale_fill_gradient2(low="black",mid="white",high="darkblue",guide=guide_colorbar(ticks=FALSE,barheight=10),limits=c(-1,1))+
+  theme_minimal()+
+  labs(x=NULL,y=NULL)
+```
+
+
+黑色表示負相關，藍色表示正相關，可以看出薪資和離職呈現負相關，而加班工時雖也和離職成正相關，新進部分，和薪資呈現負相關，但相關性較小；和加班工時成正相關，推估可能薪資較低希望可以有加班的機會。
+
+進行t檢定
+
+
+```{r}
+t.test(service$averagewage,alternative = "two.sided",mu=22000)
+
+randT<-rt(30000,df=NROW(service)-1)
+serTTest<-t.test(service$averagewage,alternative = "two.sided",mu=22000)
+
+ggplot(data.frame(x=randT))+
+  geom_density(aes(x=x),fill="grey",color="grey")+
+  geom_vline(xintercept = serTTest$statistic)+
+  geom_vline(xintercept = mean(randT)+c(-2,2)*sd(randT),linetype=2)
+```
+
+假設薪資為22k進行預測，虛線為平均數左右兩個標準差，實現為t統計量，可以看到它離開分佈有一段距離，我們可知道平均值不等於22k，所以基本上在服務業可能起薪低於平均，但長期來看，薪資會再提高，平均不只22k。
+
+ANOVA分析
+
+
+```{r}
+services <- read_csv("C:/Users/Daniel Chiang/Desktop/HW5/services.csv")
+serAnova<-aov(averagewage~career-1 ,services)
+summary(serAnova)
+```
+
+F value很大代表組跟組間差異大，但組內差異小，所以career中各行業別無明顯差異。
+
+用找出薪資不同的行業來佐證
+
+
+```{r}
+serout<-ddply(services,"career",summarise,
+              averagewage.mean=mean(services$averagewage),
+              averagewage.sd=sd(services$averagewage),
+              Length=NROW(services$averagewage),
+              tfrac=qt(p=0.90,df=Length-1),
+              Lower=averagewage.mean-tfrac*averagewage.sd/sqrt(Length),
+              Upper=averagewage.mean+tfrac*averagewage.sd/sqrt(Length))
+
+ggplot(serout,aes(x=averagewage.mean,y=career))+geom_point()+
+  geom_errorbarh(aes(xmin=Lower,xmax=Upper),height=0.3)
+```
+
+
+從圖表可看出不同職業別的平均值和信賴區間，個職業別間無非常明顯之差異，可佐證ANOVA分析。
